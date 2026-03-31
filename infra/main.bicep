@@ -1,4 +1,4 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 @minLength(1)
 @maxLength(64)
@@ -13,15 +13,8 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 
-resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: '${abbrs.resourcesResourceGroups}${environmentName}'
-  location: location
-  tags: tags
-}
-
 module containerRegistry './modules/container-registry.bicep' = {
   name: 'container-registry'
-  scope: rg
   params: {
     name: '${abbrs.containerRegistryRegistries}${resourceToken}'
     location: location
@@ -31,7 +24,6 @@ module containerRegistry './modules/container-registry.bicep' = {
 
 module containerAppsEnvironment './modules/container-apps-environment.bicep' = {
   name: 'container-apps-environment'
-  scope: rg
   params: {
     name: '${abbrs.appManagedEnvironments}${resourceToken}'
     location: location
@@ -41,7 +33,6 @@ module containerAppsEnvironment './modules/container-apps-environment.bicep' = {
 
 module albumsApi './modules/albums-api.bicep' = {
   name: 'albums-api'
-  scope: rg
   params: {
     name: '${abbrs.appContainerApps}albums-api-${resourceToken}'
     location: location
@@ -54,7 +45,6 @@ module albumsApi './modules/albums-api.bicep' = {
 
 module loadTesting './modules/load-testing.bicep' = {
   name: 'load-testing'
-  scope: rg
   params: {
     name: '${abbrs.loadTestingLoadTests}${resourceToken}'
     location: location
@@ -68,4 +58,3 @@ output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.logi
 output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistry.outputs.name
 output SERVICE_ALBUMS_API_ENDPOINT_URL string = albumsApi.outputs.uri
 output AZURE_LOAD_TESTING_RESOURCE_NAME string = loadTesting.outputs.name
-output AZURE_LOAD_TESTING_RESOURCE_GROUP string = rg.name

@@ -12,7 +12,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' e
 resource albumsApi 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: name
   location: location
-  tags: tags
+   tags: union(tags, { 'azd-service-name': 'albums-api' })
   properties: {
     managedEnvironmentId: containerAppsEnvironmentId
     configuration: {
@@ -39,7 +39,7 @@ resource albumsApi 'Microsoft.App/containerApps@2023-11-02-preview' = {
       containers: [
         {
           name: 'albums-api'
-          image: '${containerRegistryLoginServer}/albums-api:latest'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           resources: {
             cpu: json('0.5')
             memory: '1Gi'
